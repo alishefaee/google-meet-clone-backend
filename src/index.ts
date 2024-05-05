@@ -14,10 +14,10 @@ const io = socketServer(server);
 server.listen(port);
 server.on("error", onError);
 server.on("listening", onListening);
+
 /**
  * Event listener for HTTP server "error" event.
  */
-
 function onError(error:any) {
   if (error.syscall !== "listen") {
     throw error;
@@ -43,7 +43,6 @@ function onError(error:any) {
 /**
  * Event listener for HTTP server "listening" event.
  */
-
 function onListening() {
   const addr = server.address();
   const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr?.port;

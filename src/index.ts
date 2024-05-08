@@ -46,6 +46,7 @@ function onError(error:any) {
 function onListening() {
   const addr = server.address();
   const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr?.port;
+  console.log('listening on '+ bind)
 }
 
 export { server, io };

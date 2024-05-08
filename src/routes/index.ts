@@ -8,9 +8,11 @@ router.use(cors({
   origin:'*'
 }))
 
-router.get('/meeting/:meetingId', (req:TRequest,res:Response)=>{
-  const { meetingId } = req.params
-
+router.post('/meeting', (req:TRequest,res:Response)=>{
+  const newMeetingUrl = Math.floor(Math.random()*100000000)
+  return res.json({
+    meetingId: newMeetingUrl
+  })
 })
 
 export default router

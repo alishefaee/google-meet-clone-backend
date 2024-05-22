@@ -1,16 +1,5 @@
-import { NextFunction, Request, Response } from 'express'
-import { TRequest } from '../types/request'
-import { Socket } from 'socket.io'
-import { TSocket } from '../types/socket'
-import { s } from 'vitest/dist/reporters-BXNXFKfg'
 
-export function authMid(req: TRequest, res: Response, next: NextFunction) {
-  const username = req.get('username')
-  if (!username) {
-    return res.status(404).send('user not found')
-  }
-  req.username = username
-}
+import { TSocket } from '../types/socket'
 
 type Next = (err?: Error) => void
 

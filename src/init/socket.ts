@@ -1,20 +1,46 @@
-import {Server, Socket} from "socket.io";
+import { Server } from "socket.io";
 import http from "http";
-// import { socketAuthMiddleware } from "../middlewares/socket-auth";
-import {onConnection} from "../sockets/on-connection";
-import { authSocketMid } from '../middlewares/auth.middleware'
+import { authSocketMid } from '../middlewares/auth.middleware';
+import { logRoomDetails } from "../utils/function";
 
 export function socketServer(server: http.Server) {
   const io = new Server(server, {
     cors: {
-      origin: "*",
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+      origin: "*"
     },
-    // allowUpgrades: false
+
   });
 
-  io.use(authSocketMid)
-  io.on("connection", onConnection(io))
+  io.use(authSocketMid);
+  io.on("connection", (socket) => {
+    console.log('client connected:', socket.id);
 
-  return io
+    socket.on('create-meeting', (data, fn) => {
+      console.log('create meeting:', data);
+      const roomId = data.meetingId.toString();
+      socket.join(roomId);
+      console.log(`Socket ${socket.id} joined room ${roomId} after create.`);
+      logRoomDetails(io, roomId, 'create');
+      fn();
+      console.log('----------------------------------')
+    });
+
+    socket.on('join-meeting', (data, fn) => {
+      console.log('join meeting:', data);
+      const roomId = data.meetingId.toString();
+      socket.join(roomId);
+      console.log(`Socket ${socket.id} joined room ${roomId} after joining.`);
+      logRoomDetails(io, roomId, 'joining');
+      io.to(roomId).emit('new-member', { username: socket.handshake.auth.username });
+      fn();
+      console.log('----------------------------------')
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Client disconnected:', socket.id)
+    })
+  });
+
+  return io;
 }
+

@@ -7,17 +7,21 @@ export function onJoinMeeting(io: Server,socket: TSocket) {
 
   return (data: any, fn: Function) => {
     console.log('join meeting:', data);
-
+    fn();
     let updated: any = Cache.get('users') || [];
     updated.push({
-      meetingId: data.meetingId,
+      meetingId: data.meetingId.toString(),
       connectionId: socket.id,
       username: socket.handshake.auth.username
     });
     Cache.set('users', updated);
-    socket.join(data.meetingId.toString()); // Join the custom room with meetingId
-    logRoomDetails(io, data.meetingId);
-    socket.to(data.meetingId).emit('new-member', { username: socket.handshake.auth.username });
-    fn();
+    const roomId = data.meetingId.toString();
+    console.log(`Socket ${socket.id} joined room ${roomId} after joining.`);
+    io.to(roomId).emit('new-member', { username: socket.handshake.auth.username });
+    socket.join(roomId);
+    const roomPeople = updated.map((u:any)=> u.meetingId == data.meetingId.toString()?u.username:undefined).filter(Boolean)
+    socket.emit('room-info', {people: roomPeople})
+    logRoomDetails(io, roomId, 'joining');
+    console.log('----------------------------------')
   }
 }

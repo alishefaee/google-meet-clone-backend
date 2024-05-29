@@ -16,12 +16,10 @@ export function onJoinMeeting(io: Server,socket: TSocket) {
     });
     Cache.set('users', updated);
     const roomId = data.meetingId.toString();
-    console.log(`Socket ${socket.id} joined room ${roomId} after joining.`);
     io.to(roomId).emit('new-member', { username: socket.handshake.auth.username });
     socket.join(roomId);
     const roomPeople = updated.map((u:any)=> u.meetingId == data.meetingId.toString()?u.username:undefined).filter(Boolean)
     socket.emit('room-info', {people: roomPeople})
     logRoomDetails(io, roomId, 'joining');
-    console.log('----------------------------------')
   }
 }

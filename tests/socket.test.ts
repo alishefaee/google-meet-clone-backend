@@ -1,11 +1,10 @@
-import { beforeAll, afterAll, describe, it, expect } from "vitest";
-import { createServer } from "node:http";
-import { type AddressInfo } from "node:net";
-import { io as ioc, type Socket as ClientSocket } from "socket.io-client";
-import { Server, type Socket as ServerSocket } from "socket.io";
+import {beforeAll, afterAll, describe, it, expect} from "vitest";
+import {createServer} from "node:http";
+import {io as ioc, type Socket as ClientSocket} from "socket.io-client";
+import {Server, type Socket as ServerSocket} from "socket.io";
 import dotenv from "dotenv"
 
-dotenv.config({ path: '.env.example' })
+dotenv.config({path: '.env.example'})
 
 function waitFor(socket: ServerSocket | ClientSocket, event: string) {
     return new Promise((resolve) => {
@@ -13,8 +12,11 @@ function waitFor(socket: ServerSocket | ClientSocket, event: string) {
     });
 }
 
-describe("my awesome project", () => {
-    let io: Server, serverSocket: ServerSocket, clientSocket: ClientSocket;
+describe("socket io", () => {
+    let io: Server
+    let serverSocket: ServerSocket
+    let clientSocket: ClientSocket
+
     const port = process.env.PORT || 4000
 
     beforeAll(() => {
@@ -22,8 +24,6 @@ describe("my awesome project", () => {
             const httpServer = createServer();
             io = new Server(httpServer);
             httpServer.listen(port, () => {
-                // const port = (httpServer.address() as AddressInfo).port;
-                console.log('port:', port)
                 clientSocket = ioc(`http://localhost:${port}`);
                 io.on("connection", (socket) => {
                     serverSocket = socket;
@@ -38,7 +38,7 @@ describe("my awesome project", () => {
         clientSocket.disconnect();
     });
 
-    it("should work", () => {
+    it("on-create-meeting", () => {
         return new Promise((resolve) => {
             clientSocket.on("hello", (arg) => {
                 expect(arg).toEqual("world");
@@ -53,7 +53,7 @@ describe("my awesome project", () => {
             serverSocket.on("hi", (cb) => {
                 cb("hola");
             });
-            clientSocket.emit("hi", (arg:any) => {
+            clientSocket.emit("hi", (arg: any) => {
                 expect(arg).toEqual("hola");
                 resolve(undefined);
             });

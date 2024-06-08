@@ -2,22 +2,24 @@ import {TSocket} from '../types/socket'
 import Cache from "../helper/cacheHelper";
 import { Server } from "socket.io";
 import {logRoomDetails} from "../utils/function";
+import {TCacheData} from "../types/cache-data";
 
+type TCreateMeeting = {
+    meetingId: string
+}
 export function onCreateMeeting(io: Server,socket: TSocket) {
-    return (data: any, fn: Function) => {
-        console.log('create meeting:', data);
-        let updated: any = Cache.get('users') || [];
-        updated.push({
-            meetingId: data.meetingId.toString(),
+    return (data: TCreateMeeting, fn: Function) => {
+        console.log('meeting created:', data)
+        let records = Cache.get<TCacheData[]>('users') || []
+        records.push({
+            meetingId: data.meetingId,
             connectionId: socket.id,
             username: socket.handshake.auth.username
         });
-        Cache.set('users', updated);
-        const roomId = data.meetingId.toString();
-        socket.join(roomId);
-        console.log(`Socket ${socket.id} joined room ${roomId} after create.`);
-        logRoomDetails(io, roomId, 'create');
-        fn();
-        console.log('----------------------------------')
+        Cache.set('users', records);
+        const meetingId = data.meetingId
+        socket.join(meetingId);
+        logRoomDetails(io, meetingId, 'create')
+        fn()
     }
 }

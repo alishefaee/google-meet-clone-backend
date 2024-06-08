@@ -6,9 +6,9 @@ import {onMessage} from "./on-message";
 export function onConnection(io: Server) {
   return async (socket: Socket) => {
     console.log('client connected');
-    socket.on('join-meeting', onJoinMeeting(io, socket));
-    socket.on('create-meeting', onCreateMeeting(io, socket));
-    socket.on('on-message', onMessage(io, socket));
+    socket.on('s:meeting:create', onCreateMeeting(io, socket));
+    socket.on('s:meeting:join', onJoinMeeting(io, socket));
+    socket.on('s:msg:new', onMessage(io, socket));
     socket.on('disconnect', () => {
       console.log('Client disconnected:', socket.id)
     })

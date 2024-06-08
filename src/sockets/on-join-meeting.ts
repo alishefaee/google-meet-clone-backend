@@ -2,24 +2,30 @@ import { TSocket } from '../types/socket'
 import Cache from "../helper/cacheHelper"
 import { Server } from "socket.io";
 import {logRoomDetails} from "../utils/function";
+import {TCacheData} from "../types/cache-data";
 
+type TJoinMeeting = {
+  meetingId: string
+}
 export function onJoinMeeting(io: Server,socket: TSocket) {
-
-  return (data: any, fn: Function) => {
-    console.log('join meeting:', data);
-    fn();
-    let updated: any = Cache.get('users') || [];
-    updated.push({
-      meetingId: data.meetingId.toString(),
+  return (data: TJoinMeeting, fn: Function) => {
+    console.log('meeting joined:', data)
+    let records = Cache.get<TCacheData[]>('users') || []
+    records.push({
+      meetingId: data.meetingId,
       connectionId: socket.id,
       username: socket.handshake.auth.username
-    });
-    Cache.set('users', updated);
-    const roomId = data.meetingId.toString();
-    io.to(roomId).emit('new-member', { username: socket.handshake.auth.username });
-    socket.join(roomId);
-    const roomPeople = updated.map((u:any)=> u.meetingId == data.meetingId.toString()?u.username:undefined).filter(Boolean)
-    socket.emit('room-info', {people: roomPeople})
-    logRoomDetails(io, roomId, 'joining');
+    })
+    Cache.set('users', records);
+
+    const meetingId = data.meetingId
+    io.to(meetingId).emit('new-member', { username: socket.handshake.auth.username });
+    socket.join(meetingId);
+    const roomPeople = records
+        .map((u)=> u.meetingId == data.meetingId?u.username:undefined)
+        .filter(Boolean) as string[]
+    socket.emit('meeting-info', {people: roomPeople, meetingId: data.meetingId})
+    fn()
+    // logRoomDetails(io, meetingId, 'joining')
   }
 }

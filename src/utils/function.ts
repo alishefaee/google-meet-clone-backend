@@ -1,11 +1,11 @@
 import { Server } from "socket.io";
 
-export function logRoomDetails(io: Server, roomId: string, action: string) {
-    const room = io.sockets.adapter.rooms.get(roomId);
+export function logRoomDetails(io: Server, meetingId: string, action: string) {
+    const room = io.sockets.adapter.rooms.get(meetingId);
     if (room) {
-        console.log(`Members in room ${roomId} after ${action}:`, Array.from(room.keys()));
+        console.log(`Members in room ${meetingId} after ${action}:`, Array.from(room.keys()));
     } else {
-        console.log(`Room ${roomId} does not exist after ${action}.`);
+        console.log(`Room ${meetingId} does not exist after ${action}.`);
     }
 
     // Log all rooms and their members

@@ -16,15 +16,15 @@ export function onJoinMeeting(io: Server,socket: TSocket) {
       connectionId: socket.id,
       username: socket.handshake.auth.username
     })
-    Cache.set('users', records);
+    Cache.set('users', records)
 
     const meetingId = data.meetingId
-    io.to(meetingId).emit('new-member', { username: socket.handshake.auth.username });
+    io.to(meetingId).emit('f:people:new', { username: socket.handshake.auth.username });
     socket.join(meetingId);
     const roomPeople = records
         .map((u)=> u.meetingId == data.meetingId?u.username:undefined)
         .filter(Boolean) as string[]
-    socket.emit('meeting-info', {people: roomPeople, meetingId: data.meetingId})
+    socket.emit('f:meeting:info', {people: roomPeople, meetingId: data.meetingId})
     fn()
     // logRoomDetails(io, meetingId, 'joining')
   }

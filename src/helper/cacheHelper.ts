@@ -4,13 +4,13 @@ class CacheHelper {
     private static instance: CacheHelper | null = null;
     private static cache: NodeCache;
 
-    private constructor(ttlSeconds: number) {
-        CacheHelper.cache = new NodeCache({ stdTTL: ttlSeconds, checkperiod: ttlSeconds * 0.2 });
+    private constructor() {
+        CacheHelper.cache = new NodeCache({ stdTTL: 0, checkperiod: 0 });
     }
 
-    public static getInstance(ttlSeconds: number = 60): CacheHelper {
+    public static getInstance(): CacheHelper {
         if (CacheHelper.instance == null) {
-            CacheHelper.instance = new CacheHelper(ttlSeconds);
+            CacheHelper.instance = new CacheHelper();
         }
         return CacheHelper.instance;
     }

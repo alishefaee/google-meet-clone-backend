@@ -9,6 +9,10 @@ export function onConnection(io: Server) {
         socket.on('s:meeting:create', onCreateMeeting(io, socket));
         socket.on('s:meeting:join', onJoinMeeting(io, socket));
         socket.on('s:msg:new', onMessage(io, socket));
+        socket.on('audioStream', (audioData) => {
+            console.log('audioStream');
+            socket.broadcast.emit('audioStream', audioData);
+        });
         socket.on('disconnect', () => {
             console.log('Client disconnected:', socket.id)
         })

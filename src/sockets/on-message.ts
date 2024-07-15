@@ -7,10 +7,7 @@ export function onMessage(io: Server,socket: TSocket) {
   return (data: any, fn: Function) => {
     console.log('on message:', data);
 
-    let records = Cache.get<TCacheData[]>('users') || []
-    console.log('records:', records)
-
-    const user = records.find((u)=>u.username==socket.handshake.auth.username)
+    const user = Cache.get<TCacheData>(socket.handshake.auth.username)
     if (!user) {
       console.log('user not found')
       return

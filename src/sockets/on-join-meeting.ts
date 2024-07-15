@@ -3,6 +3,7 @@ import Cache from "../helper/cacheHelper"
 import { Server } from "socket.io";
 import {logRoomDetails} from "../utils/function";
 import {TCacheData} from "../types/cache-data";
+import {UserRoleEnum} from "../enums/user-role.enum";
 
 type TJoinMeeting = {
   meetingId: string
@@ -10,19 +11,33 @@ type TJoinMeeting = {
 export function onJoinMeeting(io: Server,socket: TSocket) {
   return (data: TJoinMeeting, fn: Function) => {
     console.log('meeting joined:', data)
-    let records = Cache.get<TCacheData[]>('users') || []
-    records.push({
+    // let records = Cache.get<TCacheData[]>('users') || []
+
+    const creatorUsername = Cache.keys().find((u=>Cache.get<TCacheData>(u)!.role == UserRoleEnum.CREATOR && Cache.get<TCacheData>(u)!.meetingId == data.meetingId))
+    if (!creatorUsername) {
+      console.log('Can not join right now')
+      socket.emit('f:meeting:error', {msg: 'Can not join right now'})
+      return
+    }
+
+    io.to(Cache.get<TCacheData>(creatorUsername)!.connectionId).emit('f:people:join-request',{
+      username: socket.handshake.auth.username,
+      meetingId: data.meetingId,
+      connectionId: socket.id
+    })
+
+    Cache.set(socket.handshake.auth.username,{
       meetingId: data.meetingId,
       connectionId: socket.id,
-      username: socket.handshake.auth.username
+      username: socket.handshake.auth.username,
+      role: UserRoleEnum.PARTICIPANT
     })
-    Cache.set('users', records)
 
     const meetingId = data.meetingId
     io.to(meetingId).emit('f:people:new', { username: socket.handshake.auth.username });
     socket.join(meetingId);
-    const roomPeople = records
-        .map((u)=> u.meetingId == data.meetingId?u.username:undefined)
+    const roomPeople = Cache.keys()
+        .map((u)=> (Cache.get<TCacheData>(u)!.meetingId == data.meetingId)? Cache.get<TCacheData>(u)!.username: undefined)
         .filter(Boolean) as string[]
     socket.emit('f:meeting:info', {people: roomPeople, meetingId: data.meetingId})
     fn()

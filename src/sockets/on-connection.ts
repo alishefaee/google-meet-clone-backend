@@ -33,14 +33,14 @@ export function onConnection(io: Server) {
             socket.broadcast.emit('candidate', candidate);
 
         });
-        socket.on('offer', (offer) => {
+        socket.on('offer', ({offer,meetingId}) => {
             console.log('Offer received:', offer);
-            socket.broadcast.emit('offer', offer);
+            socket.to(meetingId).emit('offer', {offer,meetingId});
         });
 
-        socket.on('answer', (answer) => {
+        socket.on('answer', ({answer, meetingId}) => {
             console.log('Answer received:', answer);
-            socket.broadcast.emit('answer', answer);
+            socket.to(meetingId).emit('answer', answer);
         });
 
         socket.on('candidate', (candidate) => {

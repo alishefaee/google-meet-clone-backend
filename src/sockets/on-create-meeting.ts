@@ -2,7 +2,6 @@ import {TSocket} from '../types/socket'
 import Cache from "../helper/cacheHelper";
 import {Server} from "socket.io";
 import {logRoomDetails} from "../utils/function";
-import {UserRoleEnum} from "../enums/user-role.enum";
 
 type TCreateMeeting = {
     meetingId: string
@@ -15,7 +14,7 @@ export function onCreateMeeting(io: Server, socket: TSocket) {
             meetingId: data.meetingId,
             connectionId: socket.id,
             username: socket.handshake.auth.username,
-            role: UserRoleEnum.CREATOR
+            isCreator: true
         });
 
         const meetingId = data.meetingId
